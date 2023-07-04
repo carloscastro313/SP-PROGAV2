@@ -1,16 +1,8 @@
 import Mascota from "../models/mascotas.model.js";
 
-export async function CrearMascota(req, res) {
+export async function CrearMascota(req, res, next) {
     try {
         const model = new Mascota(req.body);
-
-        const isValid = await model.validate();
-        console.log(isValid);
-        // if(!isValid)
-        //     return res.status(400).json({
-        //         ok: false,
-        //         msg: "Hay campos incorrectos",
-        //     });
             
         await model.save();
 
@@ -18,17 +10,12 @@ export async function CrearMascota(req, res) {
             ok: true,
         });
     } catch (error) {
-        console.error(error);
-
-        return res.status(500).json({
-            ok: false,
-            msg: "Error inesperado",
-        });
+        next(error);
     }
 }
 
 
-export async function ObtenerMascotas(req, res) {
+export async function ObtenerMascotas(req, res, next) {
     try {
         const mascotas = await Mascota.find();
 
@@ -37,17 +24,13 @@ export async function ObtenerMascotas(req, res) {
             mascotas
         });
     } catch (error) {
-        console.error(error);
-
-        return res.status(500).json({
-            ok: false,
-            msg: "Error inesperado",
-        });
+        next(error);
     }
 }
 
-export async function ObtenerMascota(req, res) {
+export async function ObtenerMascota(req, res, next) {
     try {
+        console.log(req.params)
         const { id } = req.params;
         const mascota = await Mascota.findById(id);
 
@@ -56,16 +39,11 @@ export async function ObtenerMascota(req, res) {
             mascota
         });
     } catch (error) {
-        console.error(error);
-
-        return res.status(500).json({
-            ok: false,
-            msg: "Error inesperado",
-        });
+        next(error);
     }
 }
 
-export async function ActualizarMascota(req, res) {
+export async function ActualizarMascota(req, res, next) {
     try {
         const modificada = req.body;
         const { id } = req.params;
@@ -77,26 +55,21 @@ export async function ActualizarMascota(req, res) {
           );
 
         if(!mascota)
-            return res.status(400).json({
-                ok: false,
-                msg: "No existe la mascota",
+            return next({
+                name: "Validation error",
+                message: "No existe la mascota",
             });
 
         return res.json({
             ok: true
         });
     } catch (error) {
-        console.error(error);
-
-        return res.status(500).json({
-            ok: false,
-            msg: "Error inesperado",
-        });
+        next(error);
     }
 }
 
 
-export async function EliminarMascota(req, res) {
+export async function EliminarMascota(req, res, next) {
     try {
         const { id } = req.params;
 
@@ -106,7 +79,7 @@ export async function EliminarMascota(req, res) {
           );
 
         if(!mascota)
-            return res.status(400).json({
+            return next({
                 ok: false,
                 msg: "No existe la mascota",
             });
@@ -115,36 +88,6 @@ export async function EliminarMascota(req, res) {
             ok: true
         });
     } catch (error) {
-        console.error(error);
-
-        return res.status(500).json({
-            ok: false,
-            msg: "Error inesperado",
-        });
+        next(error);
     }
-}
-
-export async function GetTipos(req,res){
-    return res.json([
-        {
-          "id": 1,
-          "descripcion": "Perro"
-        },
-        {
-          "id": 2,
-          "descripcion": "Gato"
-        },
-        {
-          "id": 3,
-          "descripcion": "Reptil"
-        },
-        {
-          "id": 4,
-          "descripcion": "Pez"
-        },
-        {
-          "id": 5,
-          "descripcion": "Roedor"
-        }
-      ]);
 }
